@@ -3,7 +3,7 @@
 # Generator: MySQL-Front 6.0  (Build 2.20)
 
 CREATE DATABASE `pnk_security` DEFAULT CHARACTER SET latin1 COLLATE latin1_spanish_ci;
-
+USE pnk_security;
 #
 # Structure for table "cartas"
 #
