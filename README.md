@@ -108,4 +108,4 @@ Las pruebas de seguridad deberán realizarse únicamente sobre los ambientes ind
 
 **Caso de estudio: PNKSecurity**
 
-> La meta no es solamente hacer que el software funcione, sino comprender cómo desarrollarlo, probarlo y mejorarlo de forma segura.
+> La meta no es solamente hacer que el software funcione, sino comprender cómo desarrollarlo, probarlo y mejorarlo de forma segura.cprueba
