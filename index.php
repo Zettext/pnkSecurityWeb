@@ -4,15 +4,22 @@ include("setup/setup.php");
 session_start();
 
 mysqli_set_charset(conectar(), 'utf8');
-$key=$_GET['id'];
-$_SESSION['id']=$_GET['id'];
 
-$sql_restorant="SELECT direcciones.calle, direcciones.numero, direcciones.comuna, direcciones.region, restautantes.nombre, restautantes.id, restautantes.fono, restautantes.email, restautantes.foto FROM restautantes INNER JOIN direcciones ON restautantes.direcciones_id =
-direcciones.id WHERE restautantes.id = ".$key." AND restautantes.eliminado IS NULL";
-$result_restorant=mysqli_query(conectar(),$sql_restorant);
-$datos_restorant=mysqli_fetch_array($result_restorant);
+// El id del restaurante debe ser numérico; si no lo es, se trata como inválido
+$key = (isset($_GET['id']) && ctype_digit((string)$_GET['id'])) ? (int)$_GET['id'] : 0;
+$_SESSION['id'] = $key;
 
-
+// Consulta preparada: evita inyección SQL (antes se concatenaba $key directamente,
+// igual que en mostrar_carrito.php)
+$con = conectar();
+$sql_restorant = "SELECT direcciones.calle, direcciones.numero, direcciones.comuna, direcciones.region, restautantes.nombre, restautantes.id, restautantes.fono, restautantes.email, restautantes.foto FROM restautantes INNER JOIN direcciones ON restautantes.direcciones_id =
+direcciones.id WHERE restautantes.id = ? AND restautantes.eliminado IS NULL";
+$stmt_restorant = mysqli_prepare($con, $sql_restorant);
+mysqli_stmt_bind_param($stmt_restorant, "i", $key);
+mysqli_stmt_execute($stmt_restorant);
+$result_restorant = mysqli_stmt_get_result($stmt_restorant);
+$datos_restorant = mysqli_fetch_array($result_restorant);
+mysqli_stmt_close($stmt_restorant);
 
 ?>
 <!DOCTYPE html>
