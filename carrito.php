@@ -1,37 +1,73 @@
 <?php
-
 include("setup/setup.php");
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-switch($_POST['op'])
-{
-    case "1": insertar();
-        break;
-    case "2": eliminaritems();
-        break;
-    case "3": eliminartodo();
-        break;
+if (!isset($_SESSION["carrito"]) || !is_array($_SESSION["carrito"])) {
+    $_SESSION["carrito"] = array();
+}
+
+if (isset($_POST['op'])) {
+    switch ($_POST['op']) {
+        case "1":
+            insertar();
+            break;
+        case "2":
+            eliminaritems();
+            break;
+        case "3":
+            eliminartodo();
+            break;
+    }
 }
 
 function insertar()
 {
-    $_SESSION["carrito"];
-    $sql="select id, nombre, precio from items where id=".$_POST['iditems'];
-    $result=mysqli_query(conectar(),$sql);
-    $datos=mysqli_fetch_array($result);
+    if (!isset($_POST['iditems']) || !filter_var($_POST['iditems'], FILTER_VALIDATE_INT)) {
+        return;
+    }
 
-    $pos=count($_SESSION["carrito"])+1;
-    $productos = array("posicion"=>$pos,"id" => $datos['id'], "nombre" =>$datos['nombre'],"precio"=>$datos['precio']);
-    $_SESSION["carrito"][$pos] = $productos;
+    $idItem = (int)$_POST['iditems'];
+    $conexion = conectar();
+
+    $sql = "SELECT id, nombre, precio FROM items WHERE id = ?";
+    $stmt = mysqli_prepare($conexion, $sql);
+
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "i", $idItem);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if ($datos = mysqli_fetch_assoc($result)) {
+            $pos = count($_SESSION["carrito"]) + 1;
+            $producto = array(
+                "posicion" => $pos,
+                "id"       => (int)$datos['id'],
+                "nombre"   => htmlspecialchars($datos['nombre'], ENT_QUOTES, 'UTF-8'),
+                "precio"   => (float)$datos['precio']
+            );
+            $_SESSION["carrito"][$pos] = $producto;
+        }
+
+        mysqli_stmt_close($stmt);
+    }
+
+    mysqli_close($conexion);
 }
 
 function eliminaritems()
 {
-    unset($_SESSION["carrito"][$_POST['pos']]);
+    if (isset($_POST['pos'])) {
+        $pos = $_POST['pos'];
+        if (isset($_SESSION["carrito"][$pos])) {
+            unset($_SESSION["carrito"][$pos]);
+        }
+    }
 }
 
 function eliminartodo()
 {
-    session_destroy();
+    $_SESSION["carrito"] = array();
 }
 ?>
