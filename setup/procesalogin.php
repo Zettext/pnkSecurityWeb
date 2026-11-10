@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['frmusuario'], $_POST[
     $conexion = conectar();
 
     // 3. Consulta preparada
-    $sql = "SELECT id_usuario, nombre, email, password FROM usuarios WHERE email = ? AND password = ?";
+    $sql = "SELECT id, nombre, email, password FROM usuarios WHERE email = ? AND password = ?";
     $stmt = mysqli_prepare($conexion, $sql);
 
     if ($stmt) {
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['frmusuario'], $_POST[
             session_regenerate_id(true);
             
             $_SESSION['nombre'] = $datos['nombre'];
-            $_SESSION['id_usuario'] = $datos['id_usuario'];
+            $_SESSION['id_usuario'] = $datos['id'];
             
             mysqli_stmt_close($stmt);
             mysqli_close($conexion);

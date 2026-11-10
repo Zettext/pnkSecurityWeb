@@ -42,8 +42,8 @@ if (empty($datos_restorant)) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title><?php echo utf8_encode($datos_restorant['nombre']);?></title>
-	<!--<link rel="icon" href="img/Fevicon.png" type="image/png">-->
+  <title><?php echo $datos_restorant['nombre'];?></title>
+  <!--<link rel="icon" href="img/Fevicon.png" type="image/png">-->
 
   <link rel="stylesheet" href="vendors/bootstrap/bootstrap.min.css">
   <link rel="stylesheet" href="vendors/themify-icons/themify-icons.css">
@@ -107,7 +107,7 @@ if (empty($datos_restorant)) {
         <div class="col-lg-4">
           <div class="carro">
             <div class="media float-right">
-              <a class="button_carrito" href="mostrar_carrito.php?keyid=<?php echo $_GET['id'];?>">
+              <a class="button_carrito" href="mostrar_carrito.php?keyid=<?php echo $key;?>">
               <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-cart4" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l.5 2H5V5H3.14zM6 5v2h2V5H6zm3 0v2h2V5H9zm3 0v2h1.36l.5-2H12zm1.11 3H12v2h.61l.5-2zM11 8H9v2h2V8zM8 8H6v2h2V8zM5 8H3.89l.5 2H5V8zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/>
               </svg>
@@ -124,14 +124,14 @@ if (empty($datos_restorant)) {
                if($key!="")
                {
                  ?>
-               
-              <h4><?php echo utf8_encode($datos_restorant['nombre']);?></h4>
+                
+              <h4><?php echo $datos_restorant['nombre'];?></h4>
               <h5>
                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-geo-alt" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                   <path fill-rule="evenodd" d="M12.166 8.94C12.696 7.867 13 6.862 13 6A5 5 0 0 0 3 6c0 .862.305 1.867.834 2.94.524 1.062 1.234 2.12 1.96 3.07A31.481 31.481 0 0 0 8 14.58l.208-.22a31.493 31.493 0 0 0 1.998-2.35c.726-.95 1.436-2.008 1.96-3.07zM8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10z"/>
                   <path fill-rule="evenodd" d="M8 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
                 </svg>  
-              <?php echo utf8_encode($datos_restorant['calle'])." #".$datos_restorant['numero'].", ".utf8_encode($datos_restorant['comuna']);?>
+              <?php echo $datos_restorant['calle']." #".$datos_restorant['numero'].", ".$datos_restorant['comuna'];?>
               </h5>
               <?php
                }
@@ -196,9 +196,9 @@ if (empty($datos_restorant)) {
               }
               ?>
           <div class="item-body">
-              <h3><?php echo utf8_encode($destacados['nombre']);?></h3>
-            <p><?php echo utf8_encode($destacados['descripcion']);?><br>
-            <?php echo utf8_encode($destacados['observaciones']);?><br>
+              <h3><?php echo $destacados['nombre'];?></h3>
+            <p><?php echo $destacados['descripcion'];?><br>
+            <?php echo $destacados['observaciones'];?><br>
             <?php
             if($destacados['tiempo']!="")
             {
@@ -251,9 +251,9 @@ if (empty($datos_restorant)) {
                             $arraycartas=[];
                             while($cartas=mysqli_fetch_array($resultcartas))
                             {
-                              array_push($arraycartas,['nombre'=>utf8_encode(quitarespacios($cartas['nombre'])),'id'=>$cartas['id']]);
+                              array_push($arraycartas,['nombre'=>quitarespacios($cartas['nombre']),'id'=>$cartas['id']]);
                             ?>
-                              <a class="nav-item nav-link" id="nav-<?php echo quitarespacios(utf8_encode($cartas['nombre']));?>-tab" data-toggle="tab" href="#<?php echo quitarespacios(utf8_encode($cartas['nombre']));?>" role="tab" aria-controls="nav-profile" aria-selected="false"><?php echo utf8_encode($cartas['nombre']);?></a>
+                              <a class="nav-item nav-link" id="nav-<?php echo quitarespacios($cartas['nombre']);?>-tab" data-toggle="tab" href="#<?php echo quitarespacios($cartas['nombre']);?>" role="tab" aria-controls="nav-profile" aria-selected="false"><?php echo $cartas['nombre'];?></a>
                             <?php
                             }
                         ?>
@@ -264,7 +264,7 @@ if (empty($datos_restorant)) {
                      for($i=0;$i<=sizeof($arraycartas);$i++)
                      {                             
                     ?>
-                    <div class="tab-pane fade <?php if($i==0){?>show active<?php } ?>" id="<?php echo quitarespacios($arraycartas[$i]["nombre"]);?>" role="tabpanel" aria-labelledby="nav-<?php echo quitarespacios($arraycartas[$i]["nombre"]);?>-tab">              
+                    <div class="tab-pane fade <?php if($i==0){?>show active<?php } ?>" id="<?php echo quitarespacios($arraycartas[$i]["nombre"]);?>" role="tabpanel" aria-labelledby="nav-<?php echo quitarespacios($arraycartas[$i]["nombre"]);?>-tab">               
                       <?php
                           $sql_categorias="select id,nombre from categorias where visible=1 and cartas_id='".$arraycartas[$i]["id"]."' AND eliminado IS NULL order by orden asc";
                           $result_categorias=mysqli_query(conectar(),$sql_categorias);
@@ -284,7 +284,7 @@ if (empty($datos_restorant)) {
                               {
                               ?>
                                 <div class="section-intro mb-20px">
-                                    <h4 class="intro-title"><?php echo utf8_encode($datos_categorias['nombre']);?></h4>
+                                    <h4 class="intro-title"><?php echo $datos_categorias['nombre'];?></h4>
                                 </div>
 
                                 <div class="row">
@@ -313,11 +313,11 @@ if (empty($datos_restorant)) {
                                                 ?>
                                                 <div class="media-body">
                                                   <div class="d-flex justify-content-between food-card-title">
-                                                    <h4><?php echo utf8_encode($datos_items['nombre']);?></h4>
+                                                    <h4><?php echo $datos_items['nombre'];?></h4>
                                                     <h3 class="price-tag"><?php echo moneda_chilena($datos_items['precio']);?></h3>
                                                   </div>
-                                                  <p><?php echo utf8_encode($datos_items['descripcion']);?></br>
-                                                  <?php echo utf8_encode($datos_items['observaciones']);?></p>
+                                                  <p><?php echo $datos_items['descripcion'];?></br>
+                                                  <?php echo $datos_items['observaciones'];?></p>
                                                   <?php
                                                   if($datos_items['tiempo']!="")
                                                   {
@@ -339,7 +339,7 @@ if (empty($datos_restorant)) {
                                                           <?php
                                                           }
                                                           ?>
-                                                        </u>
+                                                        </ul>
                                                       </p>
                                                   <a class="button float-right" href="#" id="<?php echo $datos_items['id'];?>">Seleccionar</a>
                                                 </div>
@@ -452,15 +452,15 @@ if(isset($key))
 ?>
 
   <footer class="footer-area section-gap"><br>
-		<div class="container">
-			<div class="footer-bottom row align-items-center text-center">
-				<p class="footer-text m-0 col-md-12">
+    <div class="container">
+      <div class="footer-bottom row align-items-center text-center">
+        <p class="footer-text m-0 col-md-12">
             Copyright 2020, Todos los Derechos reservados PNK, <br>
             Sitio desarrollado para la Explotación de Vulnerabilidades Web, Laboratorio de Programación Segura I<br><b>Área Tecnologías de Información y Ciberseguridad - Inacap Sede La Serena</b></br></br>
         </p>
-			</div>
-		</div>
-	</footer>
+      </div>
+    </div>
+  </footer>
 
 
   <script src="vendors/jquery/jquery-3.2.1.min.js"></script>
