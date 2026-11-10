@@ -1,19 +1,40 @@
 <?php
-
 include("setup/setup.php");
 session_start();
 
-mysqli_set_charset(conectar(), 'utf8');
-$key=$_GET['id'];
-$_SESSION['id']=$_GET['id'];
+$conexion = conectar();
+mysqli_set_charset($conexion, 'utf8');
 
-$sql_restorant="SELECT direcciones.calle, direcciones.numero, direcciones.comuna, direcciones.region, restautantes.nombre, restautantes.id, restautantes.fono, restautantes.email, restautantes.foto FROM restautantes INNER JOIN direcciones ON restautantes.direcciones_id =
-direcciones.id WHERE restautantes.id = ".$key." AND restautantes.eliminado IS NULL";
-$result_restorant=mysqli_query(conectar(),$sql_restorant);
-$datos_restorant=mysqli_fetch_array($result_restorant);
+// 1. Validación de entrada: Comprobar si existe y filtrar que sea SÓLO un número entero
+$key = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : false;
 
+// Si alguien borra el ID de la URL o mete letras, forzamos a cargar el ID 1 por defecto para no romper la página
+if ($key === false || $key === null) {
+    $key = 1;
+}
 
+$_SESSION['id'] = $key;
 
+// 2. Consulta Preparada (Evita la inyección SQL que el profe marcó como pendiente)
+$sql_restorant = "SELECT direcciones.calle, direcciones.numero, direcciones.comuna, direcciones.region, restautantes.nombre, restautantes.id, restautantes.fono, restautantes.email, restautantes.foto 
+                  FROM restautantes 
+                  INNER JOIN direcciones ON restautantes.direcciones_id = direcciones.id 
+                  WHERE restautantes.id = ? AND restautantes.eliminado IS NULL";
+
+$stmt = mysqli_prepare($conexion, $sql_restorant);
+
+if ($stmt) {
+    mysqli_stmt_bind_param($stmt, "i", $key); // La "i" fuerza a que el parámetro se trate como Integer
+    mysqli_stmt_execute($stmt);
+    $result_restorant = mysqli_stmt_get_result($stmt);
+    $datos_restorant = mysqli_fetch_array($result_restorant);
+    mysqli_stmt_close($stmt);
+}
+
+// Control de errores: Si el ID no existe en la base de datos, asignamos valores vacíos para que el HTML no lance errores "Undefined"
+if (empty($datos_restorant)) {
+    $datos_restorant = array('nombre' => 'Restaurante no encontrado', 'foto' => '', 'calle' => '', 'numero' => '', 'comuna' => '', 'fono' => '', 'email' => '');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
