@@ -4,13 +4,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['frmusuario'], $_POST[
     $usuario = trim($_POST['frmusuario']);
     $password = trim($_POST['frmpassword']);
 
+    // 1. Validar que no vengan vacíos
     if (empty($usuario) || empty($password)) {
         header('Location: ../index.php?error=campos_vacios');
         exit();
     }
 
+    // 2. Validar formato de correo (Lo que pidió el profe)
+    if (!filter_var($usuario, FILTER_VALIDATE_EMAIL)) {
+        header('Location: ../index.php?error=correo_invalido');
+        exit();
+    }
+
     $conexion = conectar();
 
+    // 3. Consulta preparada
     $sql = "SELECT id_usuario, nombre, email, password FROM usuarios WHERE email = ? AND password = ?";
     $stmt = mysqli_prepare($conexion, $sql);
 
