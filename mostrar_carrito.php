@@ -1,43 +1,43 @@
 <?php
 include("setup/setup.php");
+session_start();
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+$conexion = conectar();
+mysqli_set_charset($conexion, 'utf8');
+
+// 1. Recibir 'keyid' en lugar de 'id', y sanitizarlo
+$key = isset($_GET['keyid']) ? filter_var($_GET['keyid'], FILTER_VALIDATE_INT) : false;
+
+if ($key === false || $key === null) {
+    $key = 1;
 }
 
-if (!isset($_SESSION["carrito"]) || !is_array($_SESSION["carrito"])) {
-    $_SESSION["carrito"] = array();
+// 2. Consulta Preparada para el Carrito
+$sql_restorant = "SELECT direcciones.calle, direcciones.numero, direcciones.comuna, direcciones.region, restautantes.nombre, restautantes.id, restautantes.fono, restautantes.email, restautantes.foto 
+                  FROM restautantes 
+                  INNER JOIN direcciones ON restautantes.direcciones_id = direcciones.id 
+                  WHERE restautantes.id = ?";
+
+$stmt = mysqli_prepare($conexion, $sql_restorant);
+
+if ($stmt) {
+    mysqli_stmt_bind_param($stmt, "i", $key);
+    mysqli_stmt_execute($stmt);
+    $result_restorant = mysqli_stmt_get_result($stmt);
+    $datos_restorant = mysqli_fetch_array($result_restorant);
+    mysqli_stmt_close($stmt);
 }
 
-$key = isset($_GET['id']) && filter_var($_GET['id'], FILTER_VALIDATE_INT) ? (int)$_GET['id'] : 0;
-
-$keyid = isset($_GET['keyid']) && filter_var($_GET['keyid'], FILTER_VALIDATE_INT) ? (int)$_GET['keyid'] : $key;
-
-$datos_restorant = null;
-
-if ($key > 0) {
-    $conexion = conectar();
-
-    $sql_restorant = "SELECT direcciones.calle, direcciones.numero, direcciones.comuna, direcciones.region, 
-                             restautantes.nombre, restautantes.id, restautantes.fono, restautantes.email, restautantes.foto 
-                      FROM restautantes 
-                      INNER JOIN direcciones ON restautantes.direcciones_id = direcciones.id 
-                      WHERE restautantes.id = ?";
-    
-    $stmt = mysqli_prepare($conexion, $sql_restorant);
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, "i", $key);
-        mysqli_stmt_execute($stmt);
-        $result_restorant = mysqli_stmt_get_result($stmt);
-        $datos_restorant = mysqli_fetch_assoc($result_restorant);
-        mysqli_stmt_close($stmt);
-    }
-    mysqli_close($conexion);
+// 3. Asignar variables seguras para el HTML
+if (!empty($datos_restorant)) {
+    $nombreRestaurante = htmlspecialchars($datos_restorant['nombre'], ENT_QUOTES, 'UTF-8');
+    $fotoRestaurante = htmlspecialchars($datos_restorant['foto'], ENT_QUOTES, 'UTF-8');
+} else {
+    $nombreRestaurante = 'Restaurante no encontrado';
+    $fotoRestaurante = '';
 }
-
-$nombreRestaurante = $datos_restorant ? htmlspecialchars($datos_restorant['nombre'], ENT_QUOTES, 'UTF-8') : 'Restaurante';
-$fotoRestaurante   = $datos_restorant ? htmlspecialchars($datos_restorant['foto'], ENT_QUOTES, 'UTF-8') : '';
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>

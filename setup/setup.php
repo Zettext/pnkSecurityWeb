@@ -31,9 +31,9 @@ function conectar()
     cargar_env();
 
     $host = getenv('DB_HOST') ?: 'localhost';
-    $user = getenv('DB_USER') ?: '';
+    $user = getenv('DB_USER') ?: 'root';
     $pass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
-    $db   = getenv('DB_NAME') ?: '';
+    $db   = getenv('DB_NAME') ?: 'pnk_security';
 
     $con = mysqli_connect($host, $user, $pass, $db);
 
