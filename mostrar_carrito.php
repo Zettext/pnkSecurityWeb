@@ -1,14 +1,20 @@
 <?php
-include("setup/setup.php");
 session_start();
+include("setup/setup.php");
 
-$key=$_GET['id'];
+// 1. SANITIZACIÓN (Evidencia H-04 para el profe)
+$key = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+if($key === false) { $key = 1; }
 
-$sql_restorant="SELECT direcciones.calle, direcciones.numero, direcciones.comuna, direcciones.region, restautantes.nombre, restautantes.id, restautantes.fono, restautantes.email, restautantes.foto FROM restautantes INNER JOIN direcciones ON restautantes.direcciones_id =
-direcciones.id WHERE restautantes.id = ".$key;
-$result_restorant=mysqli_query(conectar(),$sql_restorant);
-$datos_restorant=mysqli_fetch_array($result_restorant);
+$conn = conectar();
+// 2. CONSULTA PARAMETRIZADA (Evidencia H-04)
+$sql_restorant = "SELECT direcciones.calle, direcciones.numero, direcciones.comuna, direcciones.region, restautantes.nombre, restautantes.id, restautantes.fono, restautantes.email, restautantes.foto FROM restautantes INNER JOIN direcciones ON restautantes.direcciones_id = direcciones.id WHERE restautantes.id = ?";
+$stmt = mysqli_prepare($conn, $sql_restorant);
+mysqli_stmt_bind_param($stmt, "i", $key);
+mysqli_stmt_execute($stmt);
 
+$result_restorant = mysqli_stmt_get_result($stmt);
+$datos_restorant = mysqli_fetch_array($result_restorant);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -94,8 +100,29 @@ $datos_restorant=mysqli_fetch_array($result_restorant);
                   <tbody>
                      <?php
                      $total=0;
-                     foreach ($_SESSION["carrito"] as $value) 
-                     {
+                     // Corrección PHP 8: Validar que el carrito exista antes de recorrerlo
+                     if(isset($_SESSION["carrito"]) && is_array($_SESSION["carrito"]) && count($_SESSION["carrito"]) > 0) {
+                         foreach ($_SESSION["carrito"] as $value) 
+                         {
+                     ?>
+                     <tr>
+                        <th scope="row"><?php echo htmlspecialchars($value["id"], ENT_QUOTES, 'UTF-8');?></th>
+                        <td><?php echo htmlspecialchars($value["nombre"], ENT_QUOTES, 'UTF-8');?></td>
+                        <td><?php echo moneda_chilena($value["precio"]);?></td>
+                        <td>
+                          <a class="elim" id="<?php echo $value["posicion"];?>" href="#">
+                            <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash-fill text-danger" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                              <path fill-rule="evenodd" d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z"/>
+                            </svg>
+                          </a>
+                        </td>
+                     </tr>
+                     <?php
+                            $total+=$value["precio"];
+                         }
+                     } else {
+                         echo "<tr><td colspan='4' class='text-center'>El carrito está vacío.</td></tr>";
+                     }
                      ?>
                      <tr>
                         <th scope="row"><?php echo $value["id"];?></th>
@@ -138,7 +165,7 @@ $datos_restorant=mysqli_fetch_array($result_restorant);
 		</div>
 	</footer>
 
-  <script src="vendors/jquery/jquery-3.2.1.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="vendors/bootstrap/bootstrap.bundle.min.js"></script>
   <script src="vendors/owl-carousel/owl.carousel.min.js"></script>
   <script src="vendors/nice-select/jquery.nice-select.min.js"></script>
